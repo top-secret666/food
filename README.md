@@ -1,4 +1,19 @@
-![image](https://github.com/user-attachments/assets/29525c34-aba9-4d74-ab47-3d3488780a4c)
+# Food Delivery Platform (Microservices)
+
+3 independent microservices (User, Restaurant, Order) built to showcase a modern backend stack: Spring Boot, Kafka messaging, and Keycloak-based security.
+
+## Tech Stack
+- **Backend:** Java 17, Spring Boot 3, Spring Data JPA, Spring Security (OAuth2)
+- **Messaging:** Apache Kafka
+- **Security:** Keycloak (SSO / OAuth2, RBAC)
+- **Infrastructure:** Docker, Docker Compose, PostgreSQL, Liquibase
+- **Frontend:** Next.js, TypeScript, Tailwind CSS
+
+## Key Features
+- Microservices with dedicated databases
+- OAuth2 Resource Server integration via Keycloak
+- Role-based access: `ROLE_USER` / `ROLE_ADMIN`
+- Async communication via Kafka
 
 ## Keycloak + Google SSO + Email Verification
 
