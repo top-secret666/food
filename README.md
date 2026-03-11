@@ -1,4 +1,6 @@
-![maxresdefault](https://github.com/user-attachments/assets/eb9f611d-7be9-4b27-b985-86e7179c36e7)
+<div align="center">
+		<img src="https://github.com/user-attachments/assets/778b409f-abf0-490b-8775-1892f1328d45" alt="pixel banner" width="900" />
+</div>
 
 # Food Delivery Platform (Microservices) 🍔
 
