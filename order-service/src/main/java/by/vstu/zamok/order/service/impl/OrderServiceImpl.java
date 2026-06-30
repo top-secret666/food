@@ -1,13 +1,15 @@
 package by.vstu.zamok.order.service.impl;
 
+import by.vstu.zamok.order.client.RestaurantServiceClient;
 import by.vstu.zamok.order.client.UserServiceClient;
+import by.vstu.zamok.order.dto.DishDto;
 import by.vstu.zamok.order.dto.OrderRequestDto;
 import by.vstu.zamok.order.entity.Order;
 import by.vstu.zamok.order.entity.OrderItem;
 import by.vstu.zamok.order.entity.OrderStatus;
 import by.vstu.zamok.order.entity.Payment;
-import by.vstu.zamok.order.entity.PaymentStatus;
 import by.vstu.zamok.order.event.OrderCreatedEvent;
+import by.vstu.zamok.order.event.OrderItemSnapshot;
 import by.vstu.zamok.order.event.OrderStatusChangedEvent;
 import by.vstu.zamok.order.exception.ResourceNotFoundException;
 import by.vstu.zamok.order.mapper.OrderMapper;
@@ -24,11 +26,12 @@ import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
 
 import java.time.LocalDateTime;
+import java.util.ArrayList;
 import java.util.Collections;
 import java.util.List;
+import java.util.Map;
 import java.util.Objects;
 import java.util.Optional;
-import java.util.Map;
 
 @Service
 @RequiredArgsConstructor
@@ -38,6 +41,7 @@ public class OrderServiceImpl implements OrderService {
     private final OrderMapper orderMapper;
     private final KafkaTemplate<String, Object> kafkaTemplate;
     private final UserServiceClient userServiceClient;
+    private final RestaurantServiceClient restaurantServiceClient;
     private final PaymentStrategyFactory paymentStrategyFactory;
 
     @Value("${order.kafka.topic:order-created}")
@@ -50,20 +54,25 @@ public class OrderServiceImpl implements OrderService {
     @Transactional
     public Order placeOrder(OrderRequestDto orderRequestDto, JwtAuthenticationToken authentication) {
         Long userId = userServiceClient.resolveUserId(authentication);
+        Long restaurantId = orderRequestDto.getRestaurantId();
+
+        restaurantServiceClient.validateRestaurantExists(restaurantId);
 
         Order order = orderMapper.toEntity(orderRequestDto);
         order.setStatus(OrderStatus.PENDING);
-        order.setUserId(userId); // Заменено 1L на реальный ID
+        order.setUserId(userId);
         order.setOrderDate(LocalDateTime.now());
 
         int totalPrice = 0;
+        List<OrderItemSnapshot> snapshots = new ArrayList<>();
+
         if (order.getOrderItems() != null && !order.getOrderItems().isEmpty()) {
             for (OrderItem item : order.getOrderItems()) {
+                DishDto dish = restaurantServiceClient.getDishForRestaurant(restaurantId, item.getDishId());
                 item.setOrder(order);
-                if (item.getPrice() == null) {
-                    item.setPrice(100);
-                }
-                totalPrice += item.getPrice() * item.getQuantity();
+                item.setPrice(dish.getPrice());
+                totalPrice += dish.getPrice() * item.getQuantity();
+                snapshots.add(new OrderItemSnapshot(item.getDishId(), item.getQuantity(), dish.getPrice()));
             }
         } else {
             order.setOrderItems(Collections.emptyList());
@@ -79,8 +88,12 @@ public class OrderServiceImpl implements OrderService {
 
         Order savedOrder = orderRepository.save(order);
 
-        // Публикация события в Kafka
-        kafkaTemplate.send(ORDER_CREATED_TOPIC, new OrderCreatedEvent(savedOrder.getId(), savedOrder.getUserId()));
+        kafkaTemplate.send(ORDER_CREATED_TOPIC, new OrderCreatedEvent(
+                savedOrder.getId(),
+                savedOrder.getUserId(),
+                savedOrder.getRestaurantId(),
+                snapshots
+        ));
 
         return savedOrder;
     }
@@ -92,7 +105,7 @@ public class OrderServiceImpl implements OrderService {
             return orderRepository.findAll();
         } else {
             Long userId = userServiceClient.resolveUserId(authentication);
-            return orderRepository.findByUserId(userId); // Заменено 1L
+            return orderRepository.findByUserId(userId);
         }
     }
 
@@ -108,7 +121,7 @@ public class OrderServiceImpl implements OrderService {
 
         Long userId = userServiceClient.resolveUserId(authentication);
 
-        if (Objects.equals(order.getUserId(), userId)) { // Заменено 1L
+        if (Objects.equals(order.getUserId(), userId)) {
             return order;
         } else {
             throw new AccessDeniedException("You do not have permission to view this order");
@@ -141,7 +154,7 @@ public class OrderServiceImpl implements OrderService {
         }
 
         if (order.getStatus() == OrderStatus.COMPLETED || order.getStatus() == OrderStatus.CANCELLED) {
-            return order; // idempotent
+            return order;
         }
         order.setStatus(OrderStatus.CANCELLED);
         Order saved = orderRepository.save(order);

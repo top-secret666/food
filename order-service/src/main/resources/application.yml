@@ -33,9 +33,17 @@ resilience4j:
         minimumNumberOfCalls: 5
         failureRateThreshold: 50
         waitDurationInOpenState: 10s
+      restaurantService:
+        slidingWindowSize: 10
+        minimumNumberOfCalls: 5
+        failureRateThreshold: 50
+        waitDurationInOpenState: 10s
   retry:
     instances:
       userService:
+        maxAttempts: 3
+        waitDuration: 200ms
+      restaurantService:
         maxAttempts: 3
         waitDuration: 200ms
 
