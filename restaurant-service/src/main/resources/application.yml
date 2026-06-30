@@ -19,6 +19,27 @@ spring:
       resourceserver:
         jwt:
           issuer-uri: ${KEYCLOAK_ISSUER_URI:http://localhost:8080/realms/rgr}
+  kafka:
+    bootstrap-servers: ${SPRING_KAFKA_BOOTSTRAP_SERVERS:localhost:9092}
+    consumer:
+      group-id: restaurant-service
+      auto-offset-reset: earliest
+      key-deserializer: org.apache.kafka.common.serialization.StringDeserializer
+      value-deserializer: org.springframework.kafka.support.serializer.JsonDeserializer
+      properties:
+        spring.json.trusted.packages: by.vstu.zamok.restaurant.event
+        spring.json.use.type.headers: false
 
 security:
   require-email-verified: ${REQUIRE_EMAIL_VERIFIED:true}
+
+order:
+  kafka:
+    topic: order-created
+    status-topic: order-status-changed
+
+management:
+  endpoints:
+    web:
+      exposure:
+        include: health,info
