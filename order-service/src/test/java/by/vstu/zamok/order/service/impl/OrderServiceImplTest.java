@@ -7,6 +7,7 @@ import by.vstu.zamok.order.dto.OrderItemRequestDto;
 import by.vstu.zamok.order.dto.OrderRequestDto;
 import by.vstu.zamok.order.entity.Order;
 import by.vstu.zamok.order.entity.OrderStatus;
+import by.vstu.zamok.order.entity.PaymentStatus;
 import by.vstu.zamok.order.event.OrderCreatedEvent;
 import by.vstu.zamok.order.exception.BadRequestException;
 import by.vstu.zamok.order.mapper.OrderMapper;
@@ -100,7 +101,7 @@ class OrderServiceImplTest {
         when(userServiceClient.resolveUserId(authentication)).thenReturn(5L);
         when(orderMapper.toEntity(request)).thenReturn(order);
         when(restaurantServiceClient.getDishForRestaurant(1L, 1L)).thenReturn(dish);
-        when(paymentStrategyFactory.forMethod("CARD")).thenReturn(payment -> payment.setStatus(by.vstu.zamok.order.entity.PaymentStatus.COMPLETED));
+        when(paymentStrategyFactory.forMethod("CARD")).thenReturn(payment -> payment.setStatus(PaymentStatus.COMPLETED.name()));
         when(orderRepository.save(any(Order.class))).thenReturn(saved);
 
         Order result = orderService.placeOrder(request, authentication);

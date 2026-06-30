@@ -1,16 +1,17 @@
 package by.vstu.zamok.user.controller;
 
+import by.vstu.zamok.user.auth.KeycloakAuthService;
+import by.vstu.zamok.user.configuration.SecurityConfig;
+import by.vstu.zamok.user.configuration.WebConfig;
 import by.vstu.zamok.user.dto.UserDto;
 import by.vstu.zamok.user.service.UserService;
 import org.junit.jupiter.api.Test;
 import org.springframework.beans.factory.annotation.Autowired;
-import org.springframework.boot.test.autoconfigure.web.servlet.AutoConfigureMockMvc;
-import org.springframework.boot.test.context.SpringBootTest;
+import org.springframework.boot.test.autoconfigure.web.servlet.WebMvcTest;
 import org.springframework.boot.test.mock.mockito.MockBean;
+import org.springframework.context.annotation.Import;
 import org.springframework.http.MediaType;
-import org.springframework.security.oauth2.jwt.JwtDecoder;
 import org.springframework.test.web.servlet.MockMvc;
-import org.keycloak.admin.client.Keycloak;
 
 import static org.mockito.ArgumentMatchers.any;
 import static org.mockito.Mockito.when;
@@ -19,8 +20,8 @@ import static org.springframework.test.web.servlet.request.MockMvcRequestBuilder
 import static org.springframework.test.web.servlet.result.MockMvcResultMatchers.jsonPath;
 import static org.springframework.test.web.servlet.result.MockMvcResultMatchers.status;
 
-@SpringBootTest
-@AutoConfigureMockMvc
+@WebMvcTest(controllers = AuthController.class)
+@Import({SecurityConfig.class, WebConfig.class})
 class AuthControllerSyncTest {
 
     @Autowired
@@ -30,10 +31,7 @@ class AuthControllerSyncTest {
     private UserService userService;
 
     @MockBean
-    private Keycloak keycloakAdminClient;
-
-    @MockBean
-    private JwtDecoder jwtDecoder;
+    private KeycloakAuthService authService;
 
     @Test
     void syncEndpoint_returnsUserDto() throws Exception {
