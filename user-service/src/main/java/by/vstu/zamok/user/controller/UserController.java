@@ -30,9 +30,7 @@ public class UserController {
     // Ваш существующий endpoint для получения текущего пользователя
     @GetMapping("/me")
     public ResponseEntity<UserDto> getCurrentUser(JwtAuthenticationToken authentication) {
-        String keycloakId = authentication.getToken().getSubject();
-        UserDto userDto = userService.findByKeycloakId(keycloakId);
-        return ResponseEntity.ok(userDto);
+        return ResponseEntity.ok(userService.findByKeycloakIdOrSync(authentication.getToken()));
     }
 
     // Ваш существующий endpoint для обновления пользователя

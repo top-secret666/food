@@ -2,6 +2,7 @@ package by.vstu.zamok.restaurant.service;
 
 import by.vstu.zamok.restaurant.dto.DishDto;
 import by.vstu.zamok.restaurant.entity.Dish;
+import by.vstu.zamok.restaurant.exception.ResourceNotFoundException;
 import by.vstu.zamok.restaurant.mapper.DishMapper;
 import by.vstu.zamok.restaurant.repository.DishRepository;
 import lombok.AllArgsConstructor;
@@ -26,6 +27,12 @@ public class DishService {
 
     public DishDto findById(Long id) {
         return dishRepository.findById(id).map(dishMapper::toDto).orElse(null);
+    }
+
+    public DishDto findByIdOrThrow(Long id) {
+        return dishRepository.findById(id)
+                .map(dishMapper::toDto)
+                .orElseThrow(() -> new ResourceNotFoundException("Dish not found: " + id));
     }
 
     public DishDto findByIdOrThrow(Long id) {
