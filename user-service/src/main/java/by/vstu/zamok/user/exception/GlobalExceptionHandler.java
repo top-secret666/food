@@ -16,6 +16,18 @@ import org.springframework.web.context.request.WebRequest;
 @RestControllerAdvice
 public class GlobalExceptionHandler {
 
+    @ExceptionHandler(value = {UserConflictException.class})
+    public ResponseEntity<ErrorResponse> handleConflict(UserConflictException ex, WebRequest request) {
+        ErrorResponse errorResponse = ErrorResponse.builder()
+                .status(HttpStatus.CONFLICT.value())
+                .message(ex.getMessage())
+                .error("Conflict")
+                .timestamp(LocalDateTime.now())
+                .path(request.getDescription(false).replace("uri=", ""))
+                .build();
+        return ResponseEntity.status(HttpStatus.CONFLICT).body(errorResponse);
+    }
+
     @ExceptionHandler(value = {ResourceNotFoundException.class})
     public ResponseEntity<ErrorResponse> handleNotFound(ResourceNotFoundException ex, WebRequest request) {
         ErrorResponse errorResponse = ErrorResponse.builder()
