@@ -29,6 +29,7 @@ public class SecurityConfig {
                     .requestMatchers(HttpMethod.GET, "/api/restaurants", "/api/restaurants/*").permitAll()
                     .requestMatchers(HttpMethod.GET, "/api/restaurants/search", "/api/restaurants/popular", "/api/restaurants/trending").permitAll()
                     .requestMatchers(HttpMethod.GET, "/api/restaurants/*/dishes").permitAll()
+                    .requestMatchers(HttpMethod.GET, "/api/dishes/*").permitAll()
                     .anyRequest().authenticated()
                 )
                 .oauth2ResourceServer(oauth2 -> oauth2.jwt(jwt -> jwt.jwtAuthenticationConverter(jwtAuthenticationConverter())));

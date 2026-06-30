@@ -28,6 +28,12 @@ public class DishService {
         return dishRepository.findById(id).map(dishMapper::toDto).orElse(null);
     }
 
+    public DishDto findByIdOrThrow(Long id) {
+        return dishRepository.findById(id)
+                .map(dishMapper::toDto)
+                .orElseThrow(() -> new by.vstu.zamok.restaurant.exception.ResourceNotFoundException("Dish not found: " + id));
+    }
+
     public DishDto save(DishDto dishDto) {
         Dish dish = dishMapper.toEntity(dishDto);
         return dishMapper.toDto(dishRepository.save(dish));
