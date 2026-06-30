@@ -19,13 +19,20 @@ import org.springframework.http.HttpMethod;
 @EnableMethodSecurity(prePostEnabled = true)
 public class SecurityConfig {
 
+    private final org.springframework.web.cors.CorsConfigurationSource corsConfigurationSource;
+
+    public SecurityConfig(org.springframework.web.cors.CorsConfigurationSource corsConfigurationSource) {
+        this.corsConfigurationSource = corsConfigurationSource;
+    }
+
     @Bean
     public SecurityFilterChain securityFilterChain(HttpSecurity http) throws Exception {
         http
                 .csrf(csrf -> csrf.disable())
+                .cors(cors -> cors.configurationSource(corsConfigurationSource))
                 .sessionManagement(session -> session.sessionCreationPolicy(SessionCreationPolicy.STATELESS))
                 .authorizeHttpRequests(authz -> authz
-                    .requestMatchers("/swagger-ui/**", "/v3/api-docs/**").permitAll()
+                    .requestMatchers("/swagger-ui/**", "/v3/api-docs/**", "/actuator/health", "/actuator/info").permitAll()
                     .requestMatchers(HttpMethod.GET, "/api/restaurants", "/api/restaurants/*").permitAll()
                     .requestMatchers(HttpMethod.GET, "/api/restaurants/search", "/api/restaurants/popular", "/api/restaurants/trending").permitAll()
                     .requestMatchers(HttpMethod.GET, "/api/restaurants/*/dishes").permitAll()
