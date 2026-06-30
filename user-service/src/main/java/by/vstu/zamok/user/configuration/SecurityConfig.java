@@ -21,6 +21,12 @@ import org.springframework.security.web.SecurityFilterChain;
 @EnableMethodSecurity
 public class SecurityConfig {
 
+    private final org.springframework.web.cors.CorsConfigurationSource corsConfigurationSource;
+
+    public SecurityConfig(org.springframework.web.cors.CorsConfigurationSource corsConfigurationSource) {
+        this.corsConfigurationSource = corsConfigurationSource;
+    }
+
     @Bean
     public PasswordEncoder passwordEncoder() {
         return new BCryptPasswordEncoder();
@@ -33,13 +39,16 @@ public class SecurityConfig {
             .securityMatcher(
                 "/swagger-ui/**",
                 "/v3/api-docs/**",
+                "/actuator/health",
+                "/actuator/info",
                 "/api/auth/register",
                 "/api/auth/login",
                 "/api/auth/refresh",
                 "/api/auth/verified"
             )
                 .authorizeHttpRequests(authorize -> authorize.anyRequest().permitAll())
-                .csrf(csrf -> csrf.disable());
+                .csrf(csrf -> csrf.disable())
+                .cors(cors -> cors.configurationSource(corsConfigurationSource));
         return http.build();
     }
 
@@ -50,7 +59,8 @@ public class SecurityConfig {
                 .authorizeHttpRequests(authorize -> authorize.anyRequest().authenticated())
                 .sessionManagement(session -> session.sessionCreationPolicy(SessionCreationPolicy.STATELESS))
                 .oauth2ResourceServer(oauth -> oauth.jwt(jwt -> jwt.jwtAuthenticationConverter(jwtAuthenticationConverter())))
-                .csrf(csrf -> csrf.disable());
+                .csrf(csrf -> csrf.disable())
+                .cors(cors -> cors.configurationSource(corsConfigurationSource));
         return http.build();
     }
 
