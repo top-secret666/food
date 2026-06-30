@@ -3,5 +3,5 @@ databaseChangeLog:
       file: db/changelog/changeset/user-schema-1.0.0.sql
   - include:
       file: db/changelog/changeset/user-schema-1.0.1.sql
-    - include:
-            file: db/changelog/changeset/user-schema-1.0.2.sql
+  - include:
+      file: db/changelog/changeset/user-schema-1.0.2.sql
