@@ -29,8 +29,3 @@ ALTER TABLE order_schema.order_item
 
 ALTER TABLE order_schema.payment
     ADD CONSTRAINT IF NOT EXISTS chk_payment_amount_non_negative CHECK (amount >= 0);
---liquibase formatted sql
-
---changeset zham:5
-ALTER TABLE order_schema.orders
-ALTER COLUMN user_id TYPE VARCHAR(255);

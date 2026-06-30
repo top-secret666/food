@@ -5,3 +5,5 @@ databaseChangeLog:
       file: db/changelog/changeset/restaurant-schema-1.1.0.sql
   - include:
       file: db/changelog/changeset/restaurant-schema-1.2.0.sql
+  - include:
+      file: db/changelog/changeset/restaurant-data-1.0.0.sql
