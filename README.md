@@ -86,13 +86,6 @@ Open http://localhost:3000
 
 ### B. Full stack (Docker Compose)
 
-Postgres × 3, Kafka, Keycloak, Mailhog — see [`docker-compose.yml`](docker-compose.yml).
-
-```bash
-cp .env.example .env
-docker compose --profile all up -d --build
-```
-
 | Extra | URL |
 |-------|-----|
 | Keycloak | http://localhost:8080 |
@@ -179,16 +172,12 @@ Managers/admins update status via `PUT /api/orders/{id}/status`.
 
 ## Configuration
 
-See [`.env.example`](.env.example).
-
 | Variable | Purpose |
 |----------|---------|
 | `GOOGLE_CLIENT_ID` | Google Identity audience (local + Keycloak) |
 | `GOOGLE_CLIENT_SECRET` | Keycloak Google IdP (Docker only) |
 | `CORS_ALLOWED_ORIGINS` | Allowed frontend origins |
 | `REQUIRE_EMAIL_VERIFIED` | Enforce verified email (Docker/Keycloak) |
-
-Local profile files: `*/src/main/resources/application-local.yml`
 
 ---
 
