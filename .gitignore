@@ -24,5 +24,21 @@ front/.turbo/
 front/.vercel/
 front/dist/
 
-# Logs
+# Logs & local runtime
 **/*.log
+logs/
+logs-*.txt
+start.txt
+.tmp/
+.tools/
+
+# Local env
+.env
+.env.local
+
+# Archives / OS junk
+*.zip
+*.rar
+*.7z
+Thumbs.db
+Desktop.ini

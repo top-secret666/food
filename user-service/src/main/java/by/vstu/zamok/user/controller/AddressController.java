@@ -20,21 +20,21 @@ public class AddressController {
     private final AddressService addressService;
 
     @GetMapping
-    @PreAuthorize("hasAnyRole('USER','ADMIN')")
+    @PreAuthorize("hasAnyRole('USER','MANAGER','ADMIN')")
     public ResponseEntity<List<AddressDto>> list(JwtAuthenticationToken authentication) {
         String keycloakId = authentication.getToken().getSubject();
         return ResponseEntity.ok(addressService.listMyAddresses(keycloakId));
     }
 
     @PostMapping
-    @PreAuthorize("hasAnyRole('USER','ADMIN')")
+    @PreAuthorize("hasAnyRole('USER','MANAGER','ADMIN')")
     public ResponseEntity<AddressDto> create(@RequestBody @Valid AddressDto dto, JwtAuthenticationToken authentication) {
         String keycloakId = authentication.getToken().getSubject();
         return ResponseEntity.status(HttpStatus.CREATED).body(addressService.addMyAddress(keycloakId, dto));
     }
 
     @PutMapping("/{id}")
-    @PreAuthorize("hasAnyRole('USER','ADMIN')")
+    @PreAuthorize("hasAnyRole('USER','MANAGER','ADMIN')")
     public ResponseEntity<AddressDto> update(@PathVariable("id") Long id,
                                              @RequestBody @Valid AddressDto dto,
                                              JwtAuthenticationToken authentication) {
@@ -43,7 +43,7 @@ public class AddressController {
     }
 
     @DeleteMapping("/{id}")
-    @PreAuthorize("hasAnyRole('USER','ADMIN')")
+    @PreAuthorize("hasAnyRole('USER','MANAGER','ADMIN')")
     public ResponseEntity<Void> delete(@PathVariable("id") Long id, JwtAuthenticationToken authentication) {
         String keycloakId = authentication.getToken().getSubject();
         addressService.deleteMyAddress(keycloakId, id);

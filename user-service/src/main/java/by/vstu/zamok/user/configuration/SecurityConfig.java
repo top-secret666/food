@@ -43,6 +43,7 @@ public class SecurityConfig {
                 "/actuator/info",
                 "/api/auth/register",
                 "/api/auth/login",
+                "/api/auth/google",
                 "/api/auth/refresh",
                 "/api/auth/verified"
             )

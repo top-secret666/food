@@ -81,14 +81,12 @@
             <version>2.2.0</version>
         </dependency>
 
-        <!-- ИСПРАВЛЕНО: Зависимость H2 закомментирована, чтобы не мешать PostgreSQL -->
-        <!--
+        <!-- H2 for local profile (no Docker) -->
         <dependency>
             <groupId>com.h2database</groupId>
             <artifactId>h2</artifactId>
             <scope>runtime</scope>
         </dependency>
-        -->
 
         <!-- ИСПРАВЛЕНО: Зависимость PostgreSQL раскомментирована для подключения к Docker -->
         <dependency>

@@ -212,7 +212,7 @@ services:
       USER_SERVICE_URL: http://user-service:8084
       RESTAURANT_SERVICE_URL: http://restaurant-service:8081
       REQUIRE_EMAIL_VERIFIED: ${REQUIRE_EMAIL_VERIFIED:-true}
-      CORS_ALLOWED_ORIGINS: ${CORS_ALLOWED_ORIGINS:-http://localhost:3000}
+      CORS_ALLOWED_ORIGINS: ${CORS_ALLOWED_ORIGINS:-http://localhost:3000,http://localhost:80,http://localhost}
     depends_on:
       - order-db
       - keycloak
@@ -222,6 +222,27 @@ services:
     networks:
       - app-network
     profiles: ["apps", "all"]
+
+  # Optional: build sibling React app (../react_fistapp). Use profile "frontend".
+  frontend:
+    build:
+      context: ../react_fistapp
+      dockerfile: Dockerfile
+      args:
+        REACT_APP_USER_API: ${REACT_APP_USER_API:-http://localhost:8084}
+        REACT_APP_RESTAURANT_API: ${REACT_APP_RESTAURANT_API:-http://localhost:8081}
+        REACT_APP_ORDER_API: ${REACT_APP_ORDER_API:-http://localhost:8082}
+    container_name: zamok-frontend
+    restart: unless-stopped
+    ports:
+      - "3000:80"
+    depends_on:
+      - user-service
+      - restaurant-service
+      - order-service
+    networks:
+      - app-network
+    profiles: ["frontend"]
 
 volumes:
   user_db_data:

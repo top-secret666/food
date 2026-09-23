@@ -21,6 +21,7 @@ import org.springframework.http.MediaType;
 import org.springframework.http.ResponseEntity;
 import org.springframework.security.authentication.BadCredentialsException;
 import org.springframework.security.crypto.password.PasswordEncoder;
+import org.springframework.context.annotation.Profile;
 import org.springframework.stereotype.Service;
 import org.springframework.util.LinkedMultiValueMap;
 import org.springframework.util.MultiValueMap;
@@ -37,8 +38,9 @@ import java.util.Optional;
 import java.util.Set;
 
 @Service
+@Profile("!local")
 @RequiredArgsConstructor
-public class KeycloakAuthService {
+public class KeycloakAuthService implements AuthGateway {
 
     private final KeycloakProperties props;
     private final Keycloak keycloakAdminClient;
@@ -185,5 +187,11 @@ public class KeycloakAuthService {
         } catch (HttpClientErrorException e) {
             throw new BadCredentialsException("Invalid refresh token", e);
         }
+    }
+
+    @Override
+    public Map<String, Object> loginWithGoogle(String idToken) {
+        throw new UnsupportedOperationException(
+                "Use Keycloak Google identity provider in non-local mode, or switch to the local profile.");
     }
 }

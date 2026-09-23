@@ -1,0 +1,53 @@
+server:
+  port: 8082
+
+spring:
+  autoconfigure:
+    exclude:
+      - org.springframework.boot.autoconfigure.kafka.KafkaAutoConfiguration
+  datasource:
+    url: jdbc:h2:mem:order_db;MODE=PostgreSQL;DATABASE_TO_LOWER=TRUE;DEFAULT_NULL_ORDERING=HIGH;INIT=CREATE SCHEMA IF NOT EXISTS order_schema\;SET SCHEMA order_schema
+    driver-class-name: org.h2.Driver
+    username: sa
+    password:
+  jpa:
+    hibernate:
+      ddl-auto: update
+    database-platform: org.hibernate.dialect.H2Dialect
+    properties:
+      hibernate:
+        default_schema: order_schema
+  liquibase:
+    enabled: false
+  kafka:
+    listener:
+      auto-startup: false
+    admin:
+      fail-fast: false
+    producer:
+      properties:
+        max.block.ms: 1000
+
+security:
+  require-email-verified: false
+
+cors:
+  allowed-origins: ${CORS_ALLOWED_ORIGINS:http://localhost:3000,http://localhost:3001,https://reactfistapp.vercel.app}
+
+app:
+  jwt:
+    secret: ${APP_JWT_SECRET:aroma-local-dev-secret-key-32bytes!!}
+  kafka:
+    enabled: false
+
+user-service:
+  url: ${USER_SERVICE_URL:http://localhost:8084}
+
+restaurant-service:
+  url: ${RESTAURANT_SERVICE_URL:http://localhost:8081}
+
+management:
+  endpoints:
+    web:
+      exposure:
+        include: health,info

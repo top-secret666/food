@@ -1,134 +1,194 @@
-# Food Delivery Platform (Microservices)
+# Aroma Food Delivery — Backend
 
-Educational microservices backend: **user-service**, **restaurant-service**, **order-service** with Keycloak auth, PostgreSQL, Liquibase, and Kafka.
+Microservices backend for the **Aroma** food platform: authentication, restaurant catalog, and orders.
 
-## Architecture
+Companion UI: [`react_fistapp`](https://github.com/top-secret666/react_fistapp)
+
+<p align="center">
+  <img src="docs/screenshots/01-home-hero.png" alt="Aroma home" width="780" />
+</p>
+
+---
+
+## Services
+
+| Service | Port | Responsibility |
+|---------|------|----------------|
+| **user-service** | `8084` | Register / login / Google OAuth, JWT, profiles, roles, addresses |
+| **restaurant-service** | `8081` | Restaurants, dishes, ratings |
+| **order-service** | `8082` | Place orders, status lifecycle, payments |
 
 ```text
-Keycloak (:8080) ── JWT ──► user-service (:8084)
-                         ├── restaurant-service (:8081)
-                         └── order-service (:8082)
-order-service ──HTTP──► user-service, restaurant-service
-order-service ──Kafka──► restaurant-service (order notifications)
+React SPA (:3000)
+      │
+      ├──► user-service        (:8084)
+      ├──► restaurant-service  (:8081)
+      └──► order-service       (:8082)
+                │
+                ├── HTTP ► user-service, restaurant-service
+                └── Kafka ► restaurant-service   (full Docker stack only)
 ```
 
-## Quickstart
+---
 
-### 1. Environment
+## Two ways to run
 
-Copy `.env.example` to `.env` and fill optional Google OAuth credentials.
+### A. Local mode (recommended for development)
 
-### 2. Start infrastructure + apps
+No Docker, Postgres, Kafka, or Keycloak. Uses **H2** + **local JWT**.
+
+```powershell
+# Prerequisites: JDK 17 + Maven under food\.tools\apache-maven-3.9.6
+.\start-local.ps1
+```
+
+| Endpoint | URL |
+|----------|-----|
+| user-service | http://localhost:8084 |
+| restaurant-service | http://localhost:8081 |
+| order-service | http://localhost:8082 |
+| Swagger (each service) | `/swagger-ui/index.html` |
+| Health | `GET /actuator/health` |
+
+Then start the frontend:
 
 ```bash
+cd ../react_fistapp
+cp .env.example .env
+npm install
+npm start
+```
+
+Open http://localhost:3000
+
+#### Demo accounts (password `aroma123`)
+
+| Email | Roles | UI |
+|-------|-------|-----|
+| `user@aroma.app` | `USER` | Browse, cart, orders |
+| `manager@aroma.app` | `USER` + `MANAGER` | Delivery desk |
+| `admin@aroma.app` | `ADMIN` | Accounts + catalog |
+
+#### Google sign-in (local)
+
+1. Google Cloud Console → OAuth **Web application** client  
+2. Authorized JavaScript origins: `http://localhost:3000`  
+3. Same Client ID in:
+   - `react_fistapp/.env` → `REACT_APP_GOOGLE_CLIENT_ID`
+   - environment for user-service → `GOOGLE_CLIENT_ID` (set by `start-local.ps1` if unset)
+4. Restart user-service and `npm start`
+
+---
+
+### B. Full stack (Docker Compose)
+
+Postgres × 3, Kafka, Keycloak, Mailhog — see [`docker-compose.yml`](docker-compose.yml).
+
+```bash
+cp .env.example .env
 docker compose --profile all up -d --build
 ```
 
-This starts Postgres, Kafka, Keycloak, Mailhog, and all three microservices.
+| Extra | URL |
+|-------|-----|
+| Keycloak | http://localhost:8080 |
+| Mailhog | http://localhost:8025 |
 
-### 3. Local development (without app containers)
+Layout expected for frontend profile:
 
-```bash
-docker compose --profile all up -d
-# exclude app containers: use profiles dbs,kafka,keycloak only, or stop app services
-
-mvn -f user-service/pom.xml spring-boot:run
-mvn -f restaurant-service/pom.xml spring-boot:run
-mvn -f order-service/pom.xml spring-boot:run
+```text
+parent/
+  food/            ← this repository
+  react_fistapp/   ← React SPA (sibling)
 ```
 
-## Service URLs
+```bash
+docker compose --profile all --profile frontend up -d --build
+```
 
-| Service | URL | Swagger |
-|---------|-----|---------|
-| Keycloak | http://localhost:8080 | admin / admin |
-| Mailhog | http://localhost:8025 | — |
-| user-service | http://localhost:8084 | /swagger-ui/index.html |
-| restaurant-service | http://localhost:8081 | /swagger-ui/index.html |
-| order-service | http://localhost:8082 | /swagger-ui/index.html |
+---
 
-Health: `GET /actuator/health` on each service.
+## Screenshots
 
-## Demo seed data (restaurants)
+| Home | Catalog |
+|:----:|:-------:|
+| ![Home](docs/screenshots/01-home-hero.png) | ![Catalog](docs/screenshots/02-home-catalog.png) |
 
-| Restaurant ID | Name | Sample dish IDs |
-|---------------|------|-----------------|
-| 1 | Burger House | 1 Classic Burger (450), 2 Cheese Burger (520), 3 Fries (180) |
-| 2 | Pizza Roma | 4 Margherita (380), 5 Pepperoni (420), 6 Quattro Formaggi (460) |
-| 3 | Sushi Zen | 7 California Roll (550), 8 Salmon Nigiri (320), 9 Miso Soup (150) |
+| Menu | Sign in |
+|:----:|:-------:|
+| ![Menu](docs/screenshots/03-restaurant-menu.png) | ![Login](docs/screenshots/04-login.png) |
 
-## E2E flow (curl)
+| Admin catalog | Accounts |
+|:-------------:|:--------:|
+| ![Admin catalog](docs/screenshots/07-admin-catalog.png) | ![Accounts](docs/screenshots/08-admin-accounts.png) |
 
-### Register and login (email/password)
+| Delivery desk |
+|:-------------:|
+| ![Manager](docs/screenshots/09-manager-desk.png) |
+
+---
+
+## Repository layout
+
+```text
+food/
+├── user-service/          Spring Boot — auth & users
+├── restaurant-service/    Spring Boot — catalog & dishes
+├── order-service/         Spring Boot — orders & status
+├── docs/
+│   ├── screenshots/       README images
+│   └── spec/              Technical specification PDFs
+├── scripts/               Helper scripts (e.g. e2e)
+├── docker-compose.yml
+├── start-local.ps1        Local H2 + JWT launcher
+├── .env.example
+└── README.md
+```
+
+Legacy folders (not part of the active stack): `front/`, `old-backend/`.
+
+---
+
+## Quick API smoke test (local)
 
 ```bash
-# Register
-curl -s -X POST http://localhost:8084/api/auth/register \
-  -H "Content-Type: application/json" \
-  -d '{"email":"user@example.com","password":"password123","fullName":"Test User"}'
-
-# Verify email via Mailhog UI (http://localhost:8025), then login
+# Login
 curl -s -X POST http://localhost:8084/api/auth/login \
   -H "Content-Type: application/json" \
-  -d '{"email":"user@example.com","password":"password123"}'
-# Save access_token from response
-```
+  -d "{\"email\":\"user@aroma.app\",\"password\":\"aroma123\"}"
 
-### Profile
-
-```bash
-curl -s http://localhost:8084/api/users/me \
-  -H "Authorization: Bearer <access_token>"
-```
-
-### Browse catalog
-
-```bash
+# Catalog
 curl -s http://localhost:8081/api/restaurants
-curl -s http://localhost:8081/api/restaurants/1/dishes
-```
 
-### Place order
-
-```bash
+# Place order (replace TOKEN)
 curl -s -X POST http://localhost:8082/api/orders \
-  -H "Authorization: Bearer <access_token>" \
+  -H "Authorization: Bearer TOKEN" \
   -H "Content-Type: application/json" \
-  -d '{
-    "restaurantId": 1,
-    "paymentMethod": "CARD",
-    "items": [{"dishId": 1, "quantity": 2}]
-  }'
+  -d "{\"restaurantId\":1,\"paymentMethod\":\"CARD\",\"items\":[{\"dishId\":1,\"quantity\":2}]}"
 ```
 
-Expected `totalPrice`: 900 (2 × 450). Prices are fetched from restaurant-service, not from the client.
+Order status flow:
 
-## Google OAuth
+`PENDING` → `ACCEPTED` → `COOKING` → `READY_FOR_DELIVERY` → `DELIVERING` → `COMPLETED`
 
-1. Create OAuth client in Google Cloud Console.
-2. Redirect URI: `http://localhost:8080/realms/rgr/broker/google/endpoint`
-3. Set in `.env`:
-   ```
-   GOOGLE_CLIENT_ID=...
-   GOOGLE_CLIENT_SECRET=...
-   ```
-4. Restart Keycloak stack: `docker compose --profile keycloak up -d keycloak-init`
-5. Login via Keycloak (Google button) or Authorization Code flow with `kc_idp_hint=google`.
-6. Sync user to local DB:
-   ```bash
-   curl -s -X POST http://localhost:8084/api/auth/sync \
-     -H "Authorization: Bearer <access_token>"
-   ```
+Managers/admins update status via `PUT /api/orders/{id}/status`.
 
-`GET /api/users/me` also auto-syncs on first access if the user exists in Keycloak but not yet in `user_db`.
+---
 
-## Environment variables
+## Configuration
 
-See [`.env.example`](.env.example) for the full list. Key variables:
+See [`.env.example`](.env.example).
 
-- `GOOGLE_CLIENT_ID`, `GOOGLE_CLIENT_SECRET` — Google IdP in Keycloak
-- `REQUIRE_EMAIL_VERIFIED` — block unverified JWTs (default `true`)
-- `CORS_ALLOWED_ORIGINS` — frontend origin (default `http://localhost:3000`)
+| Variable | Purpose |
+|----------|---------|
+| `GOOGLE_CLIENT_ID` | Google Identity audience (local + Keycloak) |
+| `GOOGLE_CLIENT_SECRET` | Keycloak Google IdP (Docker only) |
+| `CORS_ALLOWED_ORIGINS` | Allowed frontend origins |
+| `REQUIRE_EMAIL_VERIFIED` | Enforce verified email (Docker/Keycloak) |
+
+Local profile files: `*/src/main/resources/application-local.yml`
+
+---
 
 ## Tests
 
@@ -138,12 +198,15 @@ mvn -f restaurant-service/pom.xml verify
 mvn -f order-service/pom.xml verify
 ```
 
-Integration tests use Testcontainers (requires Docker). Unit tests run without Docker.
+Integration tests use Testcontainers (Docker required).
 
-## Legacy
+---
 
-- [`old-backend/`](old-backend/) — previous LoL tournament monolith (not used)
-- [`front/`](front/) — legacy Next.js UI (separate frontend repo planned)
+## Spec
+
+- [Technical specification](docs/spec/technical-specification.pdf)
+
+---
 
 ## Author
 

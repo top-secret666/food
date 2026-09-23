@@ -17,6 +17,8 @@ import by.vstu.zamok.order.payment.PaymentStrategyFactory;
 import by.vstu.zamok.order.repository.OrderRepository;
 import by.vstu.zamok.order.service.OrderService;
 import lombok.RequiredArgsConstructor;
+import lombok.extern.slf4j.Slf4j;
+import org.springframework.beans.factory.ObjectProvider;
 import org.springframework.beans.factory.annotation.Value;
 import org.springframework.kafka.core.KafkaTemplate;
 import org.springframework.security.access.AccessDeniedException;
@@ -35,11 +37,12 @@ import java.util.Optional;
 
 @Service
 @RequiredArgsConstructor
+@Slf4j
 public class OrderServiceImpl implements OrderService {
 
     private final OrderRepository orderRepository;
     private final OrderMapper orderMapper;
-    private final KafkaTemplate<String, Object> kafkaTemplate;
+    private final ObjectProvider<KafkaTemplate<String, Object>> kafkaTemplate;
     private final UserServiceClient userServiceClient;
     private final RestaurantServiceClient restaurantServiceClient;
     private final PaymentStrategyFactory paymentStrategyFactory;
@@ -49,6 +52,9 @@ public class OrderServiceImpl implements OrderService {
 
     @Value("${order.kafka.status-topic:order-status-changed}")
     private String ORDER_STATUS_CHANGED_TOPIC;
+
+    @Value("${app.kafka.enabled:true}")
+    private boolean kafkaEnabled;
 
     @Override
     @Transactional
@@ -88,7 +94,7 @@ public class OrderServiceImpl implements OrderService {
 
         Order savedOrder = orderRepository.save(order);
 
-        kafkaTemplate.send(ORDER_CREATED_TOPIC, new OrderCreatedEvent(
+        publish(ORDER_CREATED_TOPIC, new OrderCreatedEvent(
                 savedOrder.getId(),
                 savedOrder.getUserId(),
                 savedOrder.getRestaurantId(),
@@ -136,7 +142,7 @@ public class OrderServiceImpl implements OrderService {
 
         order.setStatus(status);
         Order saved = orderRepository.save(order);
-        kafkaTemplate.send(ORDER_STATUS_CHANGED_TOPIC, new OrderStatusChangedEvent(saved.getId(), saved.getStatus()));
+        publish(ORDER_STATUS_CHANGED_TOPIC, new OrderStatusChangedEvent(saved.getId(), saved.getStatus()));
         return saved;
     }
 
@@ -158,7 +164,7 @@ public class OrderServiceImpl implements OrderService {
         }
         order.setStatus(OrderStatus.CANCELLED);
         Order saved = orderRepository.save(order);
-        kafkaTemplate.send(ORDER_STATUS_CHANGED_TOPIC, new OrderStatusChangedEvent(saved.getId(), saved.getStatus()));
+        publish(ORDER_STATUS_CHANGED_TOPIC, new OrderStatusChangedEvent(saved.getId(), saved.getStatus()));
         return saved;
     }
 
@@ -180,9 +186,24 @@ public class OrderServiceImpl implements OrderService {
         );
     }
 
+    private void publish(String topic, Object event) {
+        if (!kafkaEnabled) {
+            return;
+        }
+        KafkaTemplate<String, Object> template = kafkaTemplate.getIfAvailable();
+        if (template == null) {
+            return;
+        }
+        try {
+            template.send(topic, event);
+        } catch (Exception e) {
+            log.warn("Kafka publish skipped for topic {}: {}", topic, e.getMessage());
+        }
+    }
+
     private boolean isAdmin(JwtAuthenticationToken authentication) {
         return authentication.getAuthorities().stream()
                 .map(GrantedAuthority::getAuthority)
-                .anyMatch(role -> role.equals("ROLE_ADMIN"));
+                .anyMatch(role -> role.equals("ROLE_ADMIN") || role.equals("ROLE_MANAGER"));
     }
 }

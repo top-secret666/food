@@ -161,6 +161,42 @@ public class UserServiceImpl implements UserService {
     }
 
     @Override
+    public List<UserDto> findAll() {
+        return userRepository.findAll().stream().map(userMapper::toDto).toList();
+    }
+
+    @Override
+    @Transactional
+    public UserDto updateRoles(Long id, List<String> roles) {
+        User user = userRepository.findById(id)
+                .orElseThrow(() -> new ResourceNotFoundException("User not found with id: " + id));
+        Set<Role> next = new HashSet<>();
+        for (String raw : roles) {
+            if (raw == null || raw.isBlank()) continue;
+            String name = raw.trim().toUpperCase();
+            if (!name.startsWith("ROLE_")) {
+                name = "ROLE_" + name;
+            }
+            if (!Set.of("ROLE_USER", "ROLE_MANAGER", "ROLE_ADMIN").contains(name)) {
+                throw new IllegalArgumentException("Unsupported role: " + raw);
+            }
+            String roleName = name;
+            Role role = roleRepository.findByName(roleName).orElseGet(() -> {
+                Role created = new Role();
+                created.setName(roleName);
+                return roleRepository.save(created);
+            });
+            next.add(role);
+        }
+        if (next.isEmpty()) {
+            throw new IllegalArgumentException("At least one role is required");
+        }
+        user.setRoles(next);
+        user.setUpdatedAt(Timestamp.from(Instant.now()));
+        return userMapper.toDto(userRepository.save(user));
+    }
+
+    @Override
     public Map<String, Long> registrationStats(int days) {
         int d = days <= 0 ? 30 : Math.min(days, 180);
         Timestamp from = Timestamp.from(Instant.now().minus(d, ChronoUnit.DAYS));

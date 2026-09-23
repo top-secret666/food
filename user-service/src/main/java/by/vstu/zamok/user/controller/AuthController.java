@@ -1,6 +1,7 @@
 package by.vstu.zamok.user.controller;
 
-import by.vstu.zamok.user.auth.KeycloakAuthService;
+import by.vstu.zamok.user.auth.AuthGateway;
+import by.vstu.zamok.user.auth.dto.GoogleLoginRequest;
 import by.vstu.zamok.user.auth.dto.LoginRequest;
 import by.vstu.zamok.user.auth.dto.RefreshRequest;
 import by.vstu.zamok.user.auth.dto.RegisterRequest;
@@ -22,7 +23,7 @@ import org.springframework.web.bind.annotation.RestController;
 @RequiredArgsConstructor
 public class AuthController {
 
-    private final KeycloakAuthService authService;
+    private final AuthGateway authService;
     private final UserService userService;
 
     @PostMapping("/register")
@@ -33,6 +34,11 @@ public class AuthController {
     @PostMapping("/login")
     public ResponseEntity<?> login(@RequestBody @Valid LoginRequest request) {
         return ResponseEntity.ok(authService.login(request));
+    }
+
+    @PostMapping("/google")
+    public ResponseEntity<?> google(@RequestBody @Valid GoogleLoginRequest request) {
+        return ResponseEntity.ok(authService.loginWithGoogle(request.getIdToken()));
     }
 
     @PostMapping("/refresh")

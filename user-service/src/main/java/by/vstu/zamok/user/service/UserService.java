@@ -18,5 +18,7 @@ public interface UserService {
     UserDto syncFromJwt(Jwt jwt);
     UserDto updateById(Long id, UpdateUserRequest request);
     List<UserDto> search(String query);
+    List<UserDto> findAll();
+    UserDto updateRoles(Long id, List<String> roles);
     Map<String, Long> registrationStats(int days);
 }
