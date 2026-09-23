@@ -4,6 +4,10 @@ Microservices backend for the **Aroma** food platform: authentication, restauran
 
 Companion UI: [`react_fistapp`](https://github.com/top-secret666/react_fistapp)
 
+### Live demo (frontend)
+
+**https://reactfistapp.vercel.app** · [GitHub Pages](https://top-secret666.github.io/react_fistapp/)
+
 <p align="center">
   <img src="docs/screenshots/01-home-hero.png" alt="Aroma home" width="780" />
 </p>
@@ -144,8 +148,6 @@ food/
 ├── .env.example
 └── README.md
 ```
-
-Legacy folders (not part of the active stack): `front/`, `old-backend/`.
 
 ---
 

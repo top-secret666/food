@@ -17,12 +17,9 @@
 .DS_Store
 Thumbs.db
 
-# Node/Next (front)
-front/node_modules/
-front/.next/
-front/.turbo/
-front/.vercel/
-front/dist/
+# Legacy trees (kept locally, not published to GitHub)
+/front/
+/old-backend/
 
 # Logs & local runtime
 **/*.log
