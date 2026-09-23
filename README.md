@@ -41,10 +41,6 @@ React SPA (:3000)
 
 No Docker, Postgres, Kafka, or Keycloak. Uses **H2** + **local JWT**.
 
-```powershell
-# Prerequisites: JDK 17 + Maven under food\.tools\apache-maven-3.9.6
-.\start-local.ps1
-```
 
 | Endpoint | URL |
 |----------|-----|
