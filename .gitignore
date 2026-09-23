@@ -39,3 +39,13 @@ start.txt
 *.7z
 Thumbs.db
 Desktop.ini
+
+# Published on GitHub: services + docs + README only
+.github/
+scripts/
+.env.example
+keycloak-init.sh
+master-realm.json
+docker-compose.yml
+/pom.xml
+start-local.ps1
