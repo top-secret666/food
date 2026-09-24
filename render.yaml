@@ -19,7 +19,7 @@ services:
       - key: GOOGLE_CLIENT_ID
         value: 934997964943-dli89dipdsr9fbgbf6804mdghoc9rd3i.apps.googleusercontent.com
       - key: CORS_ALLOWED_ORIGINS
-        value: https://reactfistapp.vercel.app,https://top-secret666.github.io,http://localhost:3000
+        value: https://aroma-food.vercel.app,https://reactfistapp.vercel.app,https://top-secret666.github.io,http://localhost:3000
 
   - type: web
     name: aroma-restaurant
@@ -34,7 +34,7 @@ services:
       - key: APP_JWT_SECRET
         value: aroma-render-shared-jwt-secret-key-32b
       - key: CORS_ALLOWED_ORIGINS
-        value: https://reactfistapp.vercel.app,https://top-secret666.github.io,http://localhost:3000
+        value: https://aroma-food.vercel.app,https://reactfistapp.vercel.app,https://top-secret666.github.io,http://localhost:3000
 
   - type: web
     name: aroma-order
@@ -49,7 +49,7 @@ services:
       - key: APP_JWT_SECRET
         value: aroma-render-shared-jwt-secret-key-32b
       - key: CORS_ALLOWED_ORIGINS
-        value: https://reactfistapp.vercel.app,https://top-secret666.github.io,http://localhost:3000
+        value: https://aroma-food.vercel.app,https://reactfistapp.vercel.app,https://top-secret666.github.io,http://localhost:3000
       - key: USER_SERVICE_URL
         value: https://aroma-user.onrender.com
       - key: RESTAURANT_SERVICE_URL
