@@ -195,6 +195,4 @@ Integration tests use Testcontainers (Docker required).
 
 ---
 
-## Author
-
-Dana Stukalova
+<img width="1280" height="560" alt="4ff088795aff41e835671f1479fa0366" src="https://github.com/user-attachments/assets/b5fcd9c9-89ec-45a3-9203-bb66e0764c3f" />
