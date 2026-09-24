@@ -6,7 +6,7 @@ Companion UI: [`aroma-food`](https://github.com/top-secret666/aroma-food)
 
 ### Live demo (frontend)
 
-**https://aroma-food.vercel.app** · [legacy](https://reactfistapp.vercel.app) · [GitHub Pages](https://top-secret666.github.io/aroma-food/)
+**https://aromafood.vercel.app** · [legacy](https://reactfistapp.vercel.app) · [GitHub Pages](https://top-secret666.github.io/aroma-food/)
 
 <p align="center">
   <img src="docs/screenshots/01-home-hero.png" alt="Aroma home" width="780" />

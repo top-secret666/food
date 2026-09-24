@@ -25,7 +25,7 @@ security:
   require-email-verified: false
 
 cors:
-  allowed-origins: ${CORS_ALLOWED_ORIGINS:http://localhost:3000,http://localhost:3001,https://aroma-food.vercel.app,https://reactfistapp.vercel.app,https://top-secret666.github.io}
+  allowed-origins: ${CORS_ALLOWED_ORIGINS:http://localhost:3000,http://localhost:3001,https://aromafood.vercel.app,https://reactfistapp.vercel.app,https://top-secret666.github.io}
 
 app:
   jwt:

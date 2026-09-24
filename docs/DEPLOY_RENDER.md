@@ -21,7 +21,7 @@ REACT_APP_GOOGLE_CLIENT_ID=934997964943-dli89dipdsr9fbgbf6804mdghoc9rd3i.apps.go
 
 7. Redeploy Vercel (Deployments → … → Redeploy)
 8. Google Cloud → OAuth Web client → Authorized JavaScript origins must include:
-   `https://aroma-food.vercel.app` and/or `https://reactfistapp.vercel.app`
+   `https://aromafood.vercel.app` and/or `https://reactfistapp.vercel.app`
 
 Notes:
 - Free Render services sleep after ~15 min idle; first request can take 30–60s (cold start).
