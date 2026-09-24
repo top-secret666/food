@@ -10,7 +10,7 @@
    - https://aroma-user.onrender.com
    - https://aroma-restaurant.onrender.com
    - https://aroma-order.onrender.com
-6. In Vercel → Project `react_fistapp` → Settings → Environment Variables (Production):
+6. In Vercel → Project `aroma-food` → Settings → Environment Variables (Production):
 
 ```text
 REACT_APP_USER_API=https://aroma-user.onrender.com
@@ -20,7 +20,8 @@ REACT_APP_GOOGLE_CLIENT_ID=934997964943-dli89dipdsr9fbgbf6804mdghoc9rd3i.apps.go
 ```
 
 7. Redeploy Vercel (Deployments → … → Redeploy)
-8. Google Cloud → OAuth Web client → Authorized JavaScript origins must include `https://reactfistapp.vercel.app`
+8. Google Cloud → OAuth Web client → Authorized JavaScript origins must include:
+   `https://aroma-food.vercel.app` and/or `https://reactfistapp.vercel.app`
 
 Notes:
 - Free Render services sleep after ~15 min idle; first request can take 30–60s (cold start).
