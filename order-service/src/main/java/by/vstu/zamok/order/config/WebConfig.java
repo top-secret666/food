@@ -8,10 +8,21 @@ import org.springframework.web.cors.CorsConfigurationSource;
 import org.springframework.web.cors.UrlBasedCorsConfigurationSource;
 
 import java.util.Arrays;
+import java.util.LinkedHashSet;
 import java.util.List;
+import java.util.Set;
+import java.util.stream.Collectors;
 
 @Configuration
 public class WebConfig {
+
+    private static final List<String> ALWAYS_ALLOWED = List.of(
+            "http://localhost:3000",
+            "http://localhost:3001",
+            "https://aromafood.vercel.app",
+            "https://reactfistapp.vercel.app",
+            "https://top-secret666.github.io"
+    );
 
     @Value("${cors.allowed-origins:http://localhost:3000}")
     private String allowedOrigins;
@@ -19,7 +30,13 @@ public class WebConfig {
     @Bean
     public CorsConfigurationSource corsConfigurationSource() {
         CorsConfiguration config = new CorsConfiguration();
-        config.setAllowedOrigins(Arrays.asList(allowedOrigins.split(",")));
+        Set<String> origins = new LinkedHashSet<>();
+        Arrays.stream(allowedOrigins.split(","))
+                .map(String::trim)
+                .filter(s -> !s.isEmpty())
+                .forEach(origins::add);
+        origins.addAll(ALWAYS_ALLOWED);
+        config.setAllowedOrigins(origins.stream().collect(Collectors.toList()));
         config.setAllowedMethods(List.of("GET", "POST", "PUT", "PATCH", "DELETE", "OPTIONS"));
         config.setAllowedHeaders(List.of("Authorization", "Content-Type"));
         config.setAllowCredentials(true);
